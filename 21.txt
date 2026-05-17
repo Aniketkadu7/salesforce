@@ -1,0 +1,31 @@
+public class EmailServiceProgram {
+
+    public static void sendEmail(
+
+        String recipientEmail,
+        String subject,
+        String body
+    ) {
+
+        Messaging.SingleEmailMessage mail =
+            new Messaging.SingleEmailMessage();
+
+        // Dynamic Recipient
+        mail.setToAddresses(
+            new String[] { recipientEmail }
+        );
+
+        // Dynamic Subject
+        mail.setSubject(subject);
+
+        // Dynamic Body
+        mail.setPlainTextBody(body);
+
+        // Send Email
+        Messaging.sendEmail(
+            new Messaging.SingleEmailMessage[] { mail }
+        );
+
+        System.debug('Email Sent Successfully');
+    }
+}

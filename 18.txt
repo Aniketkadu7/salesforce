@@ -1,0 +1,114 @@
+public class BankAccountSystem {
+
+    // Add Customer
+    public static void addCustomer(Integer custId,
+                                   String name,
+                                   String email,
+                                   Date birthDate,
+                                   String accType,
+                                   Decimal balance) {
+
+        Customer__c c = new Customer__c();
+
+        c.Name = name;
+        c.Customer_ID__c = custId;
+        c.Email__c = email;
+        c.Birth_Date__c = birthDate;
+        c.Account_Type__c = accType;
+        c.Balance__c = balance;
+
+        insert c;
+
+        System.debug('Customer Added Successfully');
+    }
+
+    // View Customers
+    public static void viewCustomers() {
+
+        List<Customer__c> custList = [
+
+            SELECT Name,
+                   Customer_ID__c,
+                   Email__c,
+                   Birth_Date__c,
+                   Account_Type__c,
+                   Balance__c
+
+            FROM Customer__c
+        ];
+
+        for(Customer__c c : custList) {
+
+            System.debug(
+
+                'ID: ' + c.Customer_ID__c +
+                ' Name: ' + c.Name +
+                ' Email: ' + c.Email__c +
+                ' Birth Date: ' + c.Birth_Date__c +
+                ' Account Type: ' + c.Account_Type__c +
+                ' Balance: ' + c.Balance__c
+            );
+        }
+    }
+
+    // Deposit Money
+    public static void deposit(Integer custId,
+                               Decimal amount) {
+
+        Customer__c c = [
+
+            SELECT Balance__c
+            FROM Customer__c
+            WHERE Customer_ID__c = :custId
+            LIMIT 1
+        ];
+
+        c.Balance__c = c.Balance__c + amount;
+
+        update c;
+
+        System.debug('Amount Deposited Successfully');
+    }
+
+    // Withdraw Money
+    public static void withdraw(Integer custId,
+                                Decimal amount) {
+
+        Customer__c c = [
+
+            SELECT Balance__c
+            FROM Customer__c
+            WHERE Customer_ID__c = :custId
+            LIMIT 1
+        ];
+
+        if(c.Balance__c >= amount) {
+
+            c.Balance__c = c.Balance__c - amount;
+
+            update c;
+
+            System.debug('Withdrawal Successful');
+
+        } else {
+
+            System.debug('Insufficient Balance');
+        }
+    }
+
+    // Delete Customer
+    public static void deleteCustomer(Integer custId) {
+
+        Customer__c c = [
+
+            SELECT Id
+            FROM Customer__c
+            WHERE Customer_ID__c = :custId
+            LIMIT 1
+        ];
+
+        delete c;
+
+        System.debug('Customer Deleted');
+    }
+}

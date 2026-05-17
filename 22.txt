@@ -1,0 +1,132 @@
+public class EmailVFController {
+
+    public String recipientEmail {get; set;}
+    public String subject {get; set;}
+    public String body {get; set;}
+
+    // File Variables
+    public Blob uploadedFileBody {get; set;}
+    public String uploadedFileName {get; set;}
+
+    public PageReference sendMail() {
+
+        // Email Validation
+        String emailRegex =
+            '^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$';
+
+        Pattern p = Pattern.compile(emailRegex);
+
+        Matcher m = p.matcher(recipientEmail);
+
+        if(!m.matches()) {
+
+            ApexPages.addMessage(
+
+                new ApexPages.Message(
+
+                    ApexPages.Severity.ERROR,
+
+                    'Invalid Email ID'
+                )
+            );
+
+            return null;
+        }
+
+        // Create Email
+        Messaging.SingleEmailMessage mail =
+            new Messaging.SingleEmailMessage();
+
+        mail.setToAddresses(
+            new String[] { recipientEmail }
+        );
+
+        mail.setSubject(subject);
+
+        mail.setPlainTextBody(body);
+
+        // Attachment from Frontend
+        if(uploadedFileBody != null) {
+
+            Messaging.EmailFileAttachment attachment =
+                new Messaging.EmailFileAttachment();
+
+            attachment.setFileName(uploadedFileName);
+
+            attachment.setBody(uploadedFileBody);
+
+            mail.setFileAttachments(
+
+                new Messaging.EmailFileAttachment[] {
+                    attachment
+                }
+            );
+        }
+
+        // Send Email
+        Messaging.sendEmail(
+
+            new Messaging.SingleEmailMessage[] {
+                mail
+            }
+        );
+
+        ApexPages.addMessage(
+
+            new ApexPages.Message(
+
+                ApexPages.Severity.CONFIRM,
+
+                'Email Sent Successfully'
+            )
+        );
+
+        return null;
+    }
+}
+
+
+//
+<apex:page controller="EmailVFController">
+
+    <apex:form enctype="multipart/form-data">
+
+        <apex:pageBlock title="Email Notification System">
+
+            <!-- Messages -->
+            <apex:pageMessages/>
+
+            <apex:pageBlockSection columns="1">
+
+                <!-- Email -->
+                <apex:inputText
+                    value="{!recipientEmail}"
+                    label="Recipient Email"/>
+
+                <!-- Subject -->
+                <apex:inputText
+                    value="{!subject}"
+                    label="Subject"/>
+
+                <!-- Body -->
+                <apex:inputTextarea
+                    value="{!body}"
+                    label="Message Body"/>
+
+                <!-- File Upload -->
+                <apex:inputFile
+                    value="{!uploadedFileBody}"
+                    filename="{!uploadedFileName}"/>
+
+            </apex:pageBlockSection>
+
+            <apex:commandButton
+                value="Send Email"
+                action="{!sendMail}"/>
+
+        </apex:pageBlock>
+
+    </apex:form>
+
+</apex:page>
+
